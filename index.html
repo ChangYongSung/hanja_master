@@ -1316,7 +1316,6 @@
     </div>
     
     <div class="feedback" id="feedback"></div>
-    <div class="streak-msg" id="streakMsg"></div>
   </div>
   
   <!-- ========== 결과 화면 ========== -->
@@ -1435,6 +1434,7 @@
     </div>
   </div>
   
+  <div class="streak-msg" id="streakMsg"></div>
   <canvas id="confettiCanvas"></canvas>
   <canvas class="fanfare-canvas" id="fanfareCanvas"></canvas>
 </div>
@@ -2771,8 +2771,8 @@ function startGame() {
   state.startTime = Date.now();
   
   if (state.isDuo) {
-    state.p1 = { correct: 0, total: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [] };
-    state.p2 = { correct: 0, total: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [] };
+    state.p1 = { correct: 0, total: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [], streak: 0 };
+    state.p2 = { correct: 0, total: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [], streak: 0 };
     updateStatsDuo();
     showScreen('gameScreenDuo');
     nextQuestion('p1');
@@ -3045,8 +3045,12 @@ function selectAnswer(idx) {
     state.streak++;
     buttons[idx].classList.add('correct');
     playSound('correct');
-    showFanfare('both', buttons[idx].getBoundingClientRect());
-    showStreakMessage();
+    
+    const isBig = (state.streak > 0 && state.streak % 5 === 0);
+    showFanfare('both', buttons[idx].getBoundingClientRect(), isBig);
+    if (isBig) {
+      showStreakMessage();
+    }
     
     // 복습 모드: 맞히면 reviewPool과 localStorage 오답 기록에서 제거
     if (state.reviewMode) {
@@ -3108,9 +3112,15 @@ function selectAnswerDuo(playerKey, idx) {
   
   if (choice.isCorrect) {
     pState.correct++;
+    pState.streak++;
     buttons[idx].classList.add('correct');
     playSound('correct');
-    showFanfare(playerKey === 'p1' ? 'left' : 'right', buttons[idx].getBoundingClientRect());
+    
+    const isBig = (pState.streak > 0 && pState.streak % 5 === 0);
+    showFanfare(playerKey === 'p1' ? 'left' : 'right', buttons[idx].getBoundingClientRect(), isBig);
+    if (isBig) {
+      showStreakMessage(playerKey);
+    }
     
     updateStatsDuo();
     setTimeout(() => {
@@ -3148,7 +3158,7 @@ let fanfareParticles = [];
 let fanfareRunning = false;
 let fanfareFrame = 0;
 
-function showFanfare(side = 'both', sourceRect = null) {
+function showFanfare(side = 'both', sourceRect = null, isBig = false) {
   // 항상 창 크기로 업데이트 방어코드
   if (fanfareCanvas.width !== window.innerWidth || fanfareCanvas.height !== window.innerHeight) {
     fanfareCanvas.width = window.innerWidth;
@@ -3158,29 +3168,33 @@ function showFanfare(side = 'both', sourceRect = null) {
   const colors = ['#f582ae', '#8bd3dd', '#fcd34d', '#10b981', '#fb923c', '#a78bfa'];
   
   const createBurst = (sourceX, sourceY, isFountain) => {
-    for (let i = 0; i < 40; i++) {
+    const particleCount = isBig ? 45 : 12;
+    for (let i = 0; i < particleCount; i++) {
       let vx, vy;
-      const speed = Math.random() * 12 + 6;
+      const speedScale = isBig ? 1.0 : 0.45;
+      const speed = (Math.random() * 12 + 6) * speedScale;
+      
       if (isFountain) {
         const angle = (Math.random() * 80 + 50) * (Math.PI / 180);
         vx = Math.cos(angle) * speed;
-        vy = -(Math.sin(angle) * speed) - 4;
+        vy = -(Math.sin(angle) * speed) - (isBig ? 4 : 2);
       } else {
         const baseAngle = sourceX < window.innerWidth / 2 ? (Math.random() * 60 - 10) : (Math.random() * 60 + 130);
         const angle = baseAngle * (Math.PI / 180);
         vx = Math.cos(angle) * speed;
-        vy = -Math.abs(Math.sin(angle) * speed) - 4;
+        vy = -Math.abs(Math.sin(angle) * speed) - (isBig ? 4 : 2);
       }
       
       fanfareParticles.push({
         x: sourceX, y: sourceY,
         vx: vx, vy: vy,
-        g: 0.45, size: Math.random() * 7 + 4,
+        g: isBig ? 0.45 : 0.35,
+        size: (Math.random() * 7 + 4) * (isBig ? 1.0 : 0.5),
         color: colors[Math.floor(Math.random() * colors.length)],
         shape: ['circle', 'rect', 'star'][Math.floor(Math.random() * 3)],
         rot: Math.random() * Math.PI * 2,
         vrot: (Math.random() - 0.5) * 0.25,
-        alpha: 1,
+        alpha: 1.0,
         life: 0
       });
     }
@@ -3260,8 +3274,9 @@ function renderFanfareLoop() {
 }
 
 /* ========== 연속 정답 메시지 ========== */
-function showStreakMessage() {
-  if (state.streak < 5) return;
+function showStreakMessage(playerName = null) {
+  const streak = playerName ? state[playerName].streak : state.streak;
+  if (streak < 5 || streak % 5 !== 0) return;
   const el = document.getElementById('streakMsg');
 
   const messages = {
@@ -3271,23 +3286,19 @@ function showStreakMessage() {
     20: '🏆 20연속!!! 역대급!',
   };
 
-  // streak이 5의 배수일 때만 표시, 또는 10·15·20 개별 체크
-  let msg = null;
-  if (state.streak >= 20 && state.streak % 5 === 0) {
-    msg = `🏆 ${state.streak}연속!!! 역대급!`;
-  } else if (messages[state.streak]) {
-    msg = messages[state.streak];
-  } else if (state.streak % 5 === 0) {
-    msg = `🔥 ${state.streak}연속 정답!`;
+  let msg = messages[streak] || `🏆 ${streak}연속!!! 역대급!`;
+
+  if (playerName) {
+    const pLabel = playerName === 'p1' ? '1P' : '2P';
+    el.textContent = `[${pLabel}] ${msg}`;
+  } else {
+    el.textContent = msg;
   }
 
-  if (!msg) return;
-
-  el.textContent = msg;
   el.classList.remove('show');
   void el.offsetWidth;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 950);
+  setTimeout(() => el.classList.remove('show'), 1200);
 }
 
 function showWrongFeedback(playerKey = null) {
