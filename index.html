@@ -72,7 +72,7 @@
     font-size: 14px;
     font-weight: 700;
     color: #001858;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -94,12 +94,12 @@
   
   .grade-display {
     text-align: center;
-    font-size: 40px;
+    font-size: 36px;
     font-weight: 900;
     color: #001858;
-    margin: 4px 0 14px;
+    margin: 0 0 4px;
     letter-spacing: -1px;
-    min-height: 48px;
+    min-height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -288,7 +288,7 @@
     font-size: 28px;
     font-weight: 900;
     color: #f582ae;
-    margin: 8px 0;
+    margin: 0 0 2px;
   }
   
   .time-slider {
@@ -360,10 +360,60 @@
   }
   
   .wrong-log-section.has-wrong { border-left: 4px solid #f582ae; padding-left: 16px; }
+  
+  /* 저장소 꺼짐 경고 배너 */
+  .storage-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .storage-warning-icon {
+    font-size: 18px;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+  .storage-warning-text {
+    flex: 1;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #78350f;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 16px;
+  }
+  .storage-warning-text strong {
+    font-size: 13px;
+    font-weight: 800;
+    color: #92400e;
+  }
+  .storage-warning-close {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    background: transparent;
+    border: none;
+    color: #92400e;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+    font-family: inherit;
+  }
+  .storage-warning-close:hover {
+    color: #78350f;
+  }
   .wrong-log-summary {
     font-size: 14px;
     color: #5d6b85;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
     text-align: center;
     font-weight: 600;
   }
@@ -379,19 +429,22 @@
   
   .wrong-log-buttons {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
   }
   
   .wrong-btn {
-    padding: 12px 8px;
+    padding: 8px 2px;
     border: none;
     border-radius: 12px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
     transition: all 0.1s;
+    line-height: 1.25;
+    word-break: break-all;
+    letter-spacing: -0.5px;
   }
   .wrong-btn:disabled {
     background: #f3f4f6 !important;
@@ -420,6 +473,15 @@
   .clear-btn-inline.cleared {
     color: #10b981;
     border-color: #10b981;
+  }
+  .view-all-btn {
+    background: #8bd3dd;
+    color: #001858;
+    box-shadow: 0 2px 0 #5ca9b5;
+  }
+  .view-all-btn:not(:disabled):active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 #5ca9b5;
   }
   
   .start-btn {
@@ -904,6 +966,72 @@
     color: #ef4444;
     text-decoration: line-through;
   }
+  .review-item .tag-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .review-item .count-badge {
+    font-size: 12px;
+    color: #f582ae;
+    font-weight: 800;
+  }
+  
+  /* 격자형 오답 목록 (한 행에 5개) */
+  .review-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    padding: 4px;
+  }
+  .review-cell {
+    background: #fffffe;
+    border-radius: 12px;
+    padding: 10px 4px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-shadow: 0 2px 6px rgba(0,24,88,0.06);
+    position: relative;
+    min-height: 92px;
+  }
+  .review-cell .cell-hanja {
+    font-size: 32px;
+    font-family: 'Nanum Myeongjo', 'Batang', serif;
+    color: #001858;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .review-cell .cell-answer {
+    font-size: 11px;
+    color: #10b981;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    word-break: keep-all;
+  }
+  .review-cell .cell-grade {
+    font-size: 9px;
+    color: #5d6b85;
+    background: #fef6e4;
+    padding: 1px 5px;
+    border-radius: 5px;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+  .review-cell .cell-count {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 10px;
+    color: #f582ae;
+    font-weight: 800;
+    background: #fff0f5;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
   
   #confettiCanvas {
     position: fixed;
@@ -941,7 +1069,7 @@
     flex-shrink: 0;
   }
   .mode-pill-btn {
-    padding: 5px 14px;
+    padding: 5px 12px;
     border: none;
     border-radius: 7px;
     font-size: 13px;
@@ -952,6 +1080,20 @@
     font-family: inherit;
     transition: all 0.15s;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mode-pill-btn .mode-icon {
+    stroke: currentColor;
+    stroke-width: 1.8;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .mode-pill-btn .mode-icon circle {
+    fill: currentColor;
+    stroke: none;
   }
   .mode-pill-btn.active {
     background: #f582ae; /* 1인/2인 모두 핑크색 */
@@ -1209,6 +1351,7 @@
     padding: 6px 10px;
     text-align: center;
     box-shadow: 0 2px 6px rgba(0,24,88,0.08);
+    position: relative;
   }
   .duo-wrong-chip .chip-hanja {
     font-size: 26.5px;
@@ -1223,6 +1366,17 @@
     color: #10b981;
     display: block;
     font-weight: 700;
+  }
+  .duo-wrong-chip .chip-count {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 9px;
+    color: #f582ae;
+    font-weight: 800;
+    background: #fff0f5;
+    padding: 1px 4px;
+    border-radius: 4px;
   }
 
   .duo-result-btn-wrap {
@@ -1259,8 +1413,22 @@
         </label>
         <div class="inline-setting-sep"></div>
         <div class="mode-pill">
-          <button class="mode-pill-btn active" id="mode1pBtn">1인 연습</button>
-          <button class="mode-pill-btn" id="mode2pBtn">2인 대전</button>
+          <button class="mode-pill-btn active" id="mode1pBtn">
+            <svg class="mode-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+              <circle cx="12" cy="7" r="3.5"/>
+              <path d="M5.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/>
+            </svg>
+            1인 연습
+          </button>
+          <button class="mode-pill-btn" id="mode2pBtn">
+            2인 대전
+            <svg class="mode-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <circle cx="8" cy="7" r="3"/>
+              <circle cx="16" cy="7" r="3"/>
+              <path d="M2.5 20c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5"/>
+              <path d="M10.5 20c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5"/>
+            </svg>
+          </button>
         </div>
         <div class="inline-setting-sep"></div>
         <span class="inline-setting-label">효과음</span>
@@ -1281,12 +1449,21 @@
     
     <div class="section wrong-log-section" id="wrongLogSection">
       <div class="section-label">오답 기록</div>
+      <div class="storage-warning" id="storageWarning" style="display:none;">
+        <div class="storage-warning-icon">⚠️</div>
+        <div class="storage-warning-text">
+          <strong>이 브라우저는 기록 저장이 꺼져 있어요.</strong>
+          <span>시크릿 모드이거나 쿠키 차단 설정일 수 있어요. 오답은 이번 세션에서만 유지되고, 창을 닫으면 사라져요.</span>
+        </div>
+        <button class="storage-warning-close" id="storageWarningClose" aria-label="닫기">×</button>
+      </div>
       <div class="wrong-log-summary" id="wrongLogSummary">
         쌓인 오답이 없어요
       </div>
       <div class="wrong-log-buttons">
-        <button class="wrong-btn review-start-btn" id="reviewStartBtn" disabled>오답으로 복습하기</button>
-        <button class="wrong-btn clear-btn-inline" id="clearBtn" disabled>기록 지우기</button>
+        <button class="wrong-btn review-start-btn" id="reviewStartBtn" disabled>최근 오답 다시 풀기</button>
+        <button class="wrong-btn view-all-btn" id="viewAllWrongBtn" disabled>전체 오답 확인</button>
+        <button class="wrong-btn clear-btn-inline" id="clearBtn" disabled>전체 기록 삭제</button>
       </div>
     </div>
     
@@ -1350,7 +1527,6 @@
   
   <!-- ========== 틀린 문제 확인 화면 ========== -->
   <div id="reviewScreen" class="screen">
-    <div class="hanja-decor">復習</div>
     <h1 class="title">틀린 문제</h1>
     <p class="subtitle">다시 한 번 외워봐요</p>
     
@@ -1359,6 +1535,18 @@
     <div class="result-buttons" style="margin-top: 16px;">
       <button class="btn-primary" id="reviewHomeBtn">처음으로</button>
       <button class="btn-secondary" id="reviewBackBtn">결과 보기</button>
+    </div>
+  </div>
+  
+  <!-- ========== 전체 오답 확인 화면 ========== -->
+  <div id="allWrongScreen" class="screen">
+    <h1 class="title">전체 오답 기록</h1>
+    <p class="subtitle" id="allWrongSubtitle">그 동안 틀렸던 한자의 기록입니다. (최대 100개)</p>
+    
+    <div class="review-list" id="allWrongList"></div>
+    
+    <div style="margin-top: 16px; display: flex; justify-content: center;">
+      <button class="btn-primary" id="allWrongHomeBtn" style="min-width: 180px;">처음으로</button>
     </div>
   </div>
   
@@ -2563,21 +2751,57 @@ function playSound(type) {
 
 const LS_KEY = 'hanja_wrong_log_v1';
 
-/* ========== 오답 저장소 ========== */
-function loadWrongLog() {
+/* ========== 오답 저장소 ==========
+ * 브라우저의 localStorage가 차단되어 있으면(시크릿 모드, 쿠키 차단 등)
+ * 자동으로 메모리 폴백(memoryWrongLog)으로 전환. 이 경우 세션 내에서는
+ * 오답이 쌓이지만 새로고침/창 종료 시 사라짐.
+ */
+let storageAvailable = null; // null=미체크, true=정상, false=차단됨
+let memoryWrongLog = [];     // localStorage 차단 시 세션 임시 저장소
+
+function checkStorageAvailable() {
+  // 이미 체크했으면 캐시된 결과 반환
+  if (storageAvailable !== null) return storageAvailable;
   try {
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) { return []; }
+    const testKey = '__hanja_test__';
+    localStorage.setItem(testKey, '1');
+    const ok = localStorage.getItem(testKey) === '1';
+    localStorage.removeItem(testKey);
+    storageAvailable = ok;
+  } catch (e) {
+    storageAvailable = false;
+  }
+  return storageAvailable;
+}
+
+function loadWrongLog() {
+  if (checkStorageAvailable()) {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+  // 폴백: 세션 메모리
+  return memoryWrongLog.slice();
 }
 function saveWrongLog(log) {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(log));
-  } catch (e) {}
+  if (checkStorageAvailable()) {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(log));
+      return;
+    } catch (e) {
+      // 저장 중 용량 초과 등으로 실패하면 이후부터는 메모리로 전환
+      storageAvailable = false;
+    }
+  }
+  // 폴백: 세션 메모리
+  memoryWrongLog = log.slice();
 }
 function addToWrongLog(item) {
   const log = loadWrongLog();
-  // 같은 한자가 이미 있으면 제거 후 추가 (최신 오답 우선)
+  // 같은 한자가 이미 있으면 기존 count를 승계하고 제거 후 맨 앞에 추가 (최신 오답 우선)
+  const existing = log.find(x => x.hanja === item.hanja);
+  const prevCount = existing && existing.count ? existing.count : (existing ? 1 : 0);
   const filtered = log.filter(x => x.hanja !== item.hanja);
   filtered.unshift({
     hanja: item.hanja,
@@ -2585,44 +2809,45 @@ function addToWrongLog(item) {
     sound: item.sound,
     answers: item.answers,
     grade: item.grade,
-    time: Date.now()
+    time: Date.now(),
+    count: prevCount + 1
   });
   // 최대 100개
   saveWrongLog(filtered.slice(0, 100));
   updateWrongCount();
 }
-function removeFromWrongLog(hanja) {
-  const log = loadWrongLog();
-  const filtered = log.filter(x => x.hanja !== hanja);
-  if (filtered.length !== log.length) {
-    saveWrongLog(filtered);
-    updateWrongCount();
-  }
+function removeFromWrongLog_DISABLED() {
+  // 의도적으로 단건 삭제 기능을 두지 않음.
+  // 전체 오답 기록은 학습자가 뭘 자주 틀렸는지 확인하는 누적 기록장이므로,
+  // 사용자가 '전체 기록 삭제' 버튼을 누를 때(saveWrongLog([]))만 비워진다.
 }
 function updateWrongCount() {
   const log = loadWrongLog();
   const summary = document.getElementById('wrongLogSummary');
   const reviewBtn = document.getElementById('reviewStartBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const viewAllBtn = document.getElementById('viewAllWrongBtn');
   const section = document.getElementById('wrongLogSection');
   
   if (log.length === 0) {
     summary.classList.remove('has-wrong');
     summary.textContent = '쌓인 오답이 없어요';
     reviewBtn.disabled = true;
-    reviewBtn.textContent = '오답으로 복습하기';
+    reviewBtn.textContent = '최근 오답 다시 풀기';
     clearBtn.disabled = true;
-    clearBtn.textContent = '기록 지우기';
+    clearBtn.textContent = '전체 기록 삭제';
     clearBtn.classList.remove('cleared');
+    if (viewAllBtn) viewAllBtn.disabled = true;
     section.classList.remove('has-wrong');
   } else {
     summary.classList.add('has-wrong');
     summary.innerHTML = `<span class="wrong-num">${log.length}개</span>의 한자가 기다리고 있어요`;
     reviewBtn.disabled = false;
-    reviewBtn.textContent = `오답 ${log.length}개 복습하기`;
+    reviewBtn.textContent = `최근 오답 ${log.length}개 다시 풀기`;
     clearBtn.disabled = false;
     clearBtn.classList.remove('cleared');
-    clearBtn.textContent = '기록 지우기';
+    clearBtn.textContent = '전체 기록 삭제';
+    if (viewAllBtn) viewAllBtn.disabled = false;
     section.classList.add('has-wrong');
   }
 }
@@ -2703,12 +2928,12 @@ function initStartScreen() {
   
   document.getElementById('clearBtn').onclick = () => {
     if (loadWrongLog().length === 0) return;
-    if (confirm('오답 기록을 모두 지울까요?')) {
+    if (confirm('전체 오답 기록을 모두 삭제할까요?')) {
       saveWrongLog([]);
       updateWrongCount();
       const btn = document.getElementById('clearBtn');
       btn.classList.add('cleared');
-      btn.textContent = '✓ 지웠어요';
+      btn.textContent = '✓ 삭제했어요';
       setTimeout(updateWrongCount, 1200);
     }
   };
@@ -2730,7 +2955,28 @@ function initStartScreen() {
     }
   };
   
+  // 저장소 가용성 체크 & 경고 배너 처리
+  setupStorageWarning();
+  
   updateWrongCount();
+}
+
+/* ========== 저장소 경고 배너 ========== */
+function setupStorageWarning() {
+  const banner = document.getElementById('storageWarning');
+  const closeBtn = document.getElementById('storageWarningClose');
+  if (!banner) return;
+  
+  if (!checkStorageAvailable()) {
+    banner.style.display = 'flex';
+  }
+  
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      banner.style.display = 'none';
+      playSound('button');
+    };
+  }
 }
 
 function selectGrade(g) {
@@ -3052,11 +3298,12 @@ function selectAnswer(idx) {
       showStreakMessage();
     }
     
-    // 복습 모드: 맞히면 reviewPool과 localStorage 오답 기록에서 제거
+    // 복습 모드: 맞히면 이번 세션 reviewPool에서만 제거 (더 이상 이 세션에서 안 나옴)
+    // 단, 전체 오답 기록(localStorage)은 유지 — 사용자가 일부러 '전체 기록 삭제'를
+    // 누르지 않는 한, 이전에 무엇을 틀렸는지 확인할 수 있는 누적 기록장 역할.
     if (state.reviewMode) {
       const hanja = state.currentQ.h;
       state.reviewPool = state.reviewPool.filter(d => d.h !== hanja);
-      removeFromWrongLog(hanja);
     }
     
     updateStats();
@@ -3064,7 +3311,13 @@ function selectAnswer(idx) {
       if (!state.paused && state.elapsed < state.totalTime) nextQuestion();
     }, 400);
   } else {
-    state.wrongQuestions.push({
+    // 세션 오답 배열에 중복 없이 누적 (같은 한자 재등장 시 count 증가 + 맨 앞으로)
+    const hanja = state.currentQ.h;
+    const existingIdx = state.wrongQuestions.findIndex(w => w.hanja === hanja);
+    const prevCount = (existingIdx >= 0 && state.wrongQuestions[existingIdx].count)
+      ? state.wrongQuestions[existingIdx].count : (existingIdx >= 0 ? 1 : 0);
+    if (existingIdx >= 0) state.wrongQuestions.splice(existingIdx, 1);
+    state.wrongQuestions.unshift({
       hanja: state.currentQ.h,
       mean: state.currentQ.m,
       sound: state.currentQ.s,
@@ -3072,7 +3325,8 @@ function selectAnswer(idx) {
       grade: state.currentQ.g,
       userAnswer: state.qType === 0 ? choice.text : choice.h,
       qType: state.qType,
-      shownAnswer: state.qType === 1 ? state.currentCorrectAnswer : null
+      shownAnswer: state.qType === 1 ? state.currentCorrectAnswer : null,
+      count: prevCount + 1
     });
     // 복습 모드에서도 다시 틀리면 최신 기록으로 업데이트 (addToWrongLog는 기존 항목을 제거 후 앞에 추가함)
     addToWrongLog({
@@ -3127,7 +3381,13 @@ function selectAnswerDuo(playerKey, idx) {
       if (state.elapsed < state.totalTime) nextQuestion(playerKey);
     }, 400);
   } else {
-    pState.wrongQuestions.push({
+    // 세션 오답 배열에 중복 없이 누적 (같은 한자 재등장 시 count 증가 + 맨 앞으로)
+    const hanja = pState.currentQ.h;
+    const existingIdx = pState.wrongQuestions.findIndex(w => w.hanja === hanja);
+    const prevCount = (existingIdx >= 0 && pState.wrongQuestions[existingIdx].count)
+      ? pState.wrongQuestions[existingIdx].count : (existingIdx >= 0 ? 1 : 0);
+    if (existingIdx >= 0) pState.wrongQuestions.splice(existingIdx, 1);
+    pState.wrongQuestions.unshift({
       hanja: pState.currentQ.h,
       mean: pState.currentQ.m,
       sound: pState.currentQ.s,
@@ -3135,7 +3395,16 @@ function selectAnswerDuo(playerKey, idx) {
       grade: pState.currentQ.g,
       userAnswer: pState.qType === 0 ? choice.text : choice.h,
       qType: pState.qType,
-      shownAnswer: pState.qType === 1 ? pState.currentCorrectAnswer : null
+      shownAnswer: pState.qType === 1 ? pState.currentCorrectAnswer : null,
+      count: prevCount + 1
+    });
+    // 2인용도 전체 오답 기록에 누적
+    addToWrongLog({
+      hanja: pState.currentQ.h,
+      mean: pState.currentQ.m,
+      sound: pState.currentQ.s,
+      answers: pState.currentQ.a,
+      grade: pState.currentQ.g
     });
     
     buttons[idx].classList.add('wrong');
@@ -3306,13 +3575,24 @@ function showWrongFeedback(playerKey = null) {
   const q = isDuo ? state[playerKey].currentQ : state.currentQ;
   const feedback = document.getElementById(isDuo ? `${playerKey}Feedback` : 'feedback');
   
-  // 다의어든 단일의어든 직접 정답만 알려주기 "OO OO이에요."
+  // 마지막 글자의 받침 유무에 따라 '이에요' / '예요' 선택
+  // 한글 유니코드(AC00~D7A3): (char - 0xAC00) % 28 === 0 이면 받침 없음
+  const ieyo = (text) => {
+    if (!text || text.length === 0) return '이에요.';
+    const last = text.charCodeAt(text.length - 1);
+    if (last < 0xAC00 || last > 0xD7A3) return '이에요.'; // 한글이 아니면 기본값
+    return ((last - 0xAC00) % 28 === 0) ? '예요.' : '이에요.';
+  };
+  
+  // 다의어든 단일의어든 직접 정답만 알려주기
   let msg;
   if (q.a.length === 1) {
-    msg = `${q.a[0]}이에요.`;
+    msg = `${q.a[0]}${ieyo(q.a[0])}`;
   } else {
-    // 다의어의 경우 콤마로 연결
-    msg = q.a.join(', ') + '이에요.';
+    // 다의어의 경우 콤마로 연결 — 어미는 마지막 뜻에 맞춰서
+    const joined = q.a.join(', ');
+    const lastAnswer = q.a[q.a.length - 1];
+    msg = joined + ieyo(lastAnswer);
   }
   
   if (isDuo) {
@@ -3495,7 +3775,9 @@ function endGameDuo() {
     player.wrongQuestions.forEach(w => {
       const chip = document.createElement('div');
       chip.className = 'duo-wrong-chip';
+      const countBadge = (w.count && w.count > 1) ? `<span class="chip-count">${w.count}회</span>` : '';
       chip.innerHTML = `
+        ${countBadge}
         <span class="chip-hanja">${w.hanja}</span>
         <span class="chip-ans">${w.answers[0]}</span>
       `;
@@ -3537,22 +3819,67 @@ function renderReview() {
     list.innerHTML = '<div class="empty-msg">틀린 문제가 없어요!</div>';
     return;
   }
+  const grid = document.createElement('div');
+  grid.className = 'review-grid';
   state.wrongQuestions.forEach(w => {
-    const item = document.createElement('div');
-    item.className = 'review-item';
-    const answersHTML = w.answers.map(a => `<div class="correct-row">✓ ${a}</div>`).join('');
-    const userAnswerText = w.userAnswer || '시간 초과';
-    item.innerHTML = `
-      <div class="review-hanja">${w.hanja}</div>
-      <div class="review-info">
-        <span class="label-tag">${w.grade}</span>
-        ${answersHTML}
-        <div class="wrong-row">내 답: ${userAnswerText}</div>
-      </div>
+    const cell = document.createElement('div');
+    cell.className = 'review-cell';
+    const answerText = (w.answers && w.answers.length > 0) ? w.answers[0] : '';
+    const countBadge = (w.count && w.count > 1) ? `<div class="cell-count">${w.count}회</div>` : '';
+    cell.innerHTML = `
+      ${countBadge}
+      <div class="cell-hanja">${w.hanja}</div>
+      <div class="cell-answer">${answerText}</div>
+      <div class="cell-grade">${w.grade || ''}</div>
     `;
-    list.appendChild(item);
+    grid.appendChild(cell);
   });
+  list.appendChild(grid);
 }
+
+/* ========== 전체 오답 확인 화면 ========== */
+function renderAllWrong() {
+  const list = document.getElementById('allWrongList');
+  const subtitle = document.getElementById('allWrongSubtitle');
+  const log = loadWrongLog();
+  list.innerHTML = '';
+  
+  if (log.length === 0) {
+    subtitle.textContent = '아직 틀린 한자가 없어요.';
+    list.innerHTML = '<div class="empty-msg">기록이 비어있어요!</div>';
+    return;
+  }
+  
+  subtitle.textContent = `그 동안 틀렸던 한자의 기록입니다. (최대 100개) · 현재 ${log.length}개`;
+  
+  const grid = document.createElement('div');
+  grid.className = 'review-grid';
+  log.forEach(w => {
+    const cell = document.createElement('div');
+    cell.className = 'review-cell';
+    const answerText = (w.answers && w.answers.length > 0) ? w.answers[0] : '';
+    const countBadge = (w.count && w.count > 1) ? `<div class="cell-count">${w.count}회</div>` : '';
+    cell.innerHTML = `
+      ${countBadge}
+      <div class="cell-hanja">${w.hanja}</div>
+      <div class="cell-answer">${answerText}</div>
+      <div class="cell-grade">${w.grade || ''}</div>
+    `;
+    grid.appendChild(cell);
+  });
+  list.appendChild(grid);
+}
+
+document.getElementById('viewAllWrongBtn').onclick = () => {
+  playSound('button');
+  renderAllWrong();
+  showScreen('allWrongScreen');
+};
+
+document.getElementById('allWrongHomeBtn').onclick = () => {
+  playSound('button');
+  showScreen('startScreen');
+};
 
 /* ========== 컨페티 ========== */
 function launchConfetti() {
