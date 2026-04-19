@@ -44,6 +44,14 @@
     margin-bottom: 8px;
     letter-spacing: -1px;
   }
+  .version-tag {
+    font-size: 11px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-left: 4px;
+    letter-spacing: 0;
+    vertical-align: baseline;
+  }
   .subtitle {
     text-align: center;
     font-size: clamp(13px, 2vw, 15px);
@@ -1032,6 +1040,26 @@
     padding: 1px 4px;
     border-radius: 4px;
   }
+  .review-cell .cell-overcome {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 11px;
+    color: #ffffff;
+    font-weight: 800;
+    background: #10b981;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .review-cell.overcome {
+    opacity: 0.55;
+    background: #f9fafb;
+  }
   
   #confettiCanvas {
     position: fixed;
@@ -1390,7 +1418,7 @@
 <div class="app">
   <!-- ========== 시작 화면 ========== -->
   <div id="startScreen" class="screen active">
-    <h1 class="title">한자 급수 연습</h1>
+    <h1 class="title">한자 급수 연습<sup class="version-tag">v1.2</sup></h1>
     <p class="subtitle">빠르고 정확하게! 제한 시간 안에 많이 풀어보세요</p>
     
     <div class="section">
@@ -1501,7 +1529,7 @@
     <h1 class="result-title" id="resultTitle">수고했어요!</h1>
     
     <div class="result-card">
-      <div class="accuracy-label">정답률</div>
+      <div class="accuracy-label" id="accuracyLabel">정답률</div>
       <div class="accuracy-big"><span id="accuracyValue">0</span>%</div>
       <div class="result-stats">
         <div class="result-stat">
@@ -1510,11 +1538,11 @@
         </div>
         <div class="result-stat">
           <div class="value" id="resultCorrect">0</div>
-          <div class="label">맞힌 문제</div>
+          <div class="label" id="resultCorrectLabel">맞힌 문제</div>
         </div>
         <div class="result-stat">
           <div class="value" id="resultTotal">0</div>
-          <div class="label">전체 문제</div>
+          <div class="label" id="resultTotalLabel">전체 문제</div>
         </div>
       </div>
     </div>
@@ -2641,6 +2669,7 @@ let state = {
   includePrev: false,
   timeIdx: 1,
   reviewMode: false,
+  reviewInitialCount: 0, // 복습 세션 시작 시 오답 개수 (분모)
   pool: [],
   currentQ: null,
   choices: [],
@@ -2810,7 +2839,8 @@ function addToWrongLog(item) {
     answers: item.answers,
     grade: item.grade,
     time: Date.now(),
-    count: prevCount + 1
+    count: prevCount + 1,
+    overcome: false  // 다시 틀렸으니 극복 해제 (이미 false여도 명시적으로 씀)
   });
   // 최대 100개
   saveWrongLog(filtered.slice(0, 100));
@@ -2821,8 +2851,29 @@ function removeFromWrongLog_DISABLED() {
   // 전체 오답 기록은 학습자가 뭘 자주 틀렸는지 확인하는 누적 기록장이므로,
   // 사용자가 '전체 기록 삭제' 버튼을 누를 때(saveWrongLog([]))만 비워진다.
 }
+
+/* 복습 모드에서 맞혔을 때: 기록은 유지하고 'overcome' 플래그만 true로 설정.
+ * 이렇게 하면 (1) 전체 오답 기록은 학습자가 뭘 틀렸는지 돌아볼 수 있고,
+ * (2) '최근 오답 N개 다시 풀기' 버튼은 아직 극복 못한 것만 카운트할 수 있다.
+ * 나중에 같은 한자를 또 틀리면 addToWrongLog가 overcome을 자연스레 false로 덮어씀. */
+function markOvercome(hanja) {
+  const log = loadWrongLog();
+  let changed = false;
+  const updated = log.map(item => {
+    if (item.hanja === hanja && !item.overcome) {
+      changed = true;
+      return { ...item, overcome: true };
+    }
+    return item;
+  });
+  if (changed) {
+    saveWrongLog(updated);
+    updateWrongCount();
+  }
+}
 function updateWrongCount() {
   const log = loadWrongLog();
+  const pending = log.filter(x => !x.overcome);  // 아직 극복 못한 오답
   const summary = document.getElementById('wrongLogSummary');
   const reviewBtn = document.getElementById('reviewStartBtn');
   const clearBtn = document.getElementById('clearBtn');
@@ -2830,6 +2881,7 @@ function updateWrongCount() {
   const section = document.getElementById('wrongLogSection');
   
   if (log.length === 0) {
+    // 기록 자체가 없음
     summary.classList.remove('has-wrong');
     summary.textContent = '쌓인 오답이 없어요';
     reviewBtn.disabled = true;
@@ -2839,11 +2891,23 @@ function updateWrongCount() {
     clearBtn.classList.remove('cleared');
     if (viewAllBtn) viewAllBtn.disabled = true;
     section.classList.remove('has-wrong');
-  } else {
+  } else if (pending.length === 0) {
+    // 기록은 있지만 모두 극복함 — 복습 버튼은 비활성, 전체 확인/삭제는 활성
     summary.classList.add('has-wrong');
-    summary.innerHTML = `<span class="wrong-num">${log.length}개</span>의 한자가 기다리고 있어요`;
+    summary.innerHTML = `모든 오답을 극복했어요! <span style="color:#10b981">✓</span>`;
+    reviewBtn.disabled = true;
+    reviewBtn.textContent = '복습할 오답 없음';
+    clearBtn.disabled = false;
+    clearBtn.classList.remove('cleared');
+    clearBtn.textContent = '전체 기록 삭제';
+    if (viewAllBtn) viewAllBtn.disabled = false;
+    section.classList.add('has-wrong');
+  } else {
+    // 아직 극복 안 한 오답이 있음
+    summary.classList.add('has-wrong');
+    summary.innerHTML = `<span class="wrong-num">${pending.length}개</span>의 한자가 기다리고 있어요`;
     reviewBtn.disabled = false;
-    reviewBtn.textContent = `최근 오답 ${log.length}개 다시 풀기`;
+    reviewBtn.textContent = `최근 오답 ${pending.length}개 다시 풀기`;
     clearBtn.disabled = false;
     clearBtn.classList.remove('cleared');
     clearBtn.textContent = '전체 기록 삭제';
@@ -3041,11 +3105,13 @@ function startGame() {
 /* ========== 오답 복습 시작 ========== */
 function startReview() {
   const log = loadWrongLog();
-  if (log.length === 0) return;
+  // 아직 극복 못한 오답만 복습 대상으로 (이미 극복된 한자는 이번 세션에서 제외)
+  const pending = log.filter(x => !x.overcome);
+  if (pending.length === 0) return;
   
   // 오답 기록에서 한자 정보를 가져와 pool 구성
   // 기록에는 hanja, mean, sound, answers, grade가 저장됨
-  state.pool = log.map(item => ({
+  state.pool = pending.map(item => ({
     g: item.grade,
     h: item.hanja,
     m: item.mean,
@@ -3056,6 +3122,7 @@ function startReview() {
   // 오답 선택지를 뽑기 위해서는 같은 급수 근처의 한자들도 필요
   // state.pool 자체는 출제용, 오답 선택지는 별도로 전체에서 뽑음
   state.reviewPool = [...state.pool];  // 실제로 낼 문제들
+  state.reviewInitialCount = state.reviewPool.length;  // 복습 평가의 분모
   state.pool = hanjaData;  // pickWrongChoices용 (전체에서 오답 뽑기)
   
   state.reviewMode = true;
@@ -3299,11 +3366,12 @@ function selectAnswer(idx) {
     }
     
     // 복습 모드: 맞히면 이번 세션 reviewPool에서만 제거 (더 이상 이 세션에서 안 나옴)
-    // 단, 전체 오답 기록(localStorage)은 유지 — 사용자가 일부러 '전체 기록 삭제'를
-    // 누르지 않는 한, 이전에 무엇을 틀렸는지 확인할 수 있는 누적 기록장 역할.
+    // 전체 오답 기록(localStorage)은 유지하되, 'overcome' 플래그를 달아서
+    // '최근 오답 다시 풀기' 대상에서 빠지게 함.
     if (state.reviewMode) {
       const hanja = state.currentQ.h;
       state.reviewPool = state.reviewPool.filter(d => d.h !== hanja);
+      markOvercome(hanja);
     }
     
     updateStats();
@@ -3690,38 +3758,80 @@ function endGame() {
   
   resetPauseBtn();
   
-  const acc = state.total === 0 ? 0 : Math.round((state.correct / state.total) * 100);
+  // 정답률 계산 및 라벨/숫자 표시 — 복습 모드는 '전체 오답 중 극복한 비율'로 평가
+  let acc;
+  const accuracyLabel = document.getElementById('accuracyLabel');
+  const correctLabel = document.getElementById('resultCorrectLabel');
+  const totalLabel = document.getElementById('resultTotalLabel');
+  
+  if (state.reviewMode && state.reviewInitialCount > 0) {
+    const overcome = state.reviewInitialCount - (state.reviewPool ? state.reviewPool.length : 0);
+    acc = Math.round((overcome / state.reviewInitialCount) * 100);
+    accuracyLabel.textContent = '극복률';
+    correctLabel.textContent = '극복한 오답';
+    totalLabel.textContent = '전체 오답';
+    document.getElementById('resultCorrect').textContent = overcome;
+    document.getElementById('resultTotal').textContent = state.reviewInitialCount;
+  } else {
+    acc = state.total === 0 ? 0 : Math.round((state.correct / state.total) * 100);
+    accuracyLabel.textContent = '정답률';
+    correctLabel.textContent = '맞힌 문제';
+    totalLabel.textContent = '전체 문제';
+    document.getElementById('resultCorrect').textContent = state.correct;
+    document.getElementById('resultTotal').textContent = state.total;
+  }
   document.getElementById('accuracyValue').textContent = acc;
   document.getElementById('resultTime').textContent = TIME_LABELS[state.timeIdx];
-  document.getElementById('resultCorrect').textContent = state.correct;
-  document.getElementById('resultTotal').textContent = state.total;
   
-  // 이모지/타이틀 (복습 모드 우선 처리)
+  // 이모지/타이틀
   const emoji = document.getElementById('resultEmoji');
   const title = document.getElementById('resultTitle');
   
-  if (state.reviewMode && state.reviewPool && state.reviewPool.length === 0 && state.total > 0) {
-    // 복습 모드에서 오답을 모두 극복한 경우
-    emoji.textContent = '🌟';
-    title.textContent = '오답을 모두 정복했어요!';
-    launchConfetti();
-  } else if (state.total === 0) {
-    emoji.textContent = '🤔';
-    title.textContent = '문제를 풀어봐요';
-  } else if (acc === 100 && state.total > 10) {
-    emoji.textContent = '🏆';
-    title.textContent = state.reviewMode ? '복습 완벽!' : '완벽해요!';
-    launchConfetti();
-  } else if (acc >= 80 || (acc === 100 && state.total <= 10)) {
-    emoji.textContent = '🎉';
-    title.textContent = state.reviewMode ? '복습 훌륭!' : '훌륭해요!';
-    launchConfetti();
-  } else if (acc >= 60) {
-    emoji.textContent = '👍';
-    title.textContent = '잘했어요!';
+  if (state.reviewMode) {
+    // ===== 복습 모드 판정 =====
+    // '극복한 개수 / 초기 오답 개수'로 평가
+    const overcome = state.reviewInitialCount - (state.reviewPool ? state.reviewPool.length : 0);
+    const initial = state.reviewInitialCount;
+    
+    if (state.total === 0) {
+      emoji.textContent = '🤔';
+      title.textContent = '문제를 풀어봐요';
+    } else if (overcome === initial && initial > 0) {
+      // 모든 오답을 극복
+      emoji.textContent = '🌟';
+      title.textContent = '오답을 모두 정복했어요!';
+      launchConfetti();
+    } else if (acc >= 80) {
+      emoji.textContent = '🎉';
+      title.textContent = '복습 훌륭!';
+      launchConfetti();
+    } else if (acc >= 50) {
+      emoji.textContent = '👍';
+      title.textContent = '복습 잘했어요!';
+    } else {
+      emoji.textContent = '💪';
+      title.textContent = '조금 더 복습해봐요';
+    }
   } else {
-    emoji.textContent = '💪';
-    title.textContent = '다시 도전!';
+    // ===== 일반 모드 판정 (기존 로직 유지) =====
+    if (state.total === 0) {
+      emoji.textContent = '🤔';
+      title.textContent = '문제를 풀어봐요';
+    } else if (acc === 100 && state.total > 10) {
+      emoji.textContent = '🏆';
+      title.textContent = '완벽해요!';
+      launchConfetti();
+    } else if (acc >= 80 || (acc === 100 && state.total <= 10)) {
+      emoji.textContent = '🎉';
+      title.textContent = '훌륭해요!';
+      launchConfetti();
+    } else if (acc >= 60) {
+      emoji.textContent = '👍';
+      title.textContent = '잘했어요!';
+    } else {
+      emoji.textContent = '💪';
+      title.textContent = '다시 도전!';
+    }
   }
   
   // 틀린 문제 확인 버튼
@@ -3850,17 +3960,22 @@ function renderAllWrong() {
     return;
   }
   
-  subtitle.textContent = `그 동안 틀렸던 한자의 기록입니다. (최대 100개) · 현재 ${log.length}개`;
+  const overcomeCount = log.filter(x => x.overcome).length;
+  const pendingCount = log.length - overcomeCount;
+  subtitle.innerHTML = `그 동안 틀렸던 한자의 기록입니다. (최대 100개)<br>
+    <span style="font-size:12px; color:#5d6b85;">전체 ${log.length}개 · 극복 <span style="color:#10b981; font-weight:700">${overcomeCount}</span> · 남음 <span style="color:#f582ae; font-weight:700">${pendingCount}</span></span>`;
   
   const grid = document.createElement('div');
   grid.className = 'review-grid';
   log.forEach(w => {
     const cell = document.createElement('div');
-    cell.className = 'review-cell';
+    cell.className = 'review-cell' + (w.overcome ? ' overcome' : '');
     const answerText = (w.answers && w.answers.length > 0) ? w.answers[0] : '';
     const countBadge = (w.count && w.count > 1) ? `<div class="cell-count">${w.count}회</div>` : '';
+    const overcomeMark = w.overcome ? `<div class="cell-overcome" title="극복함">✓</div>` : '';
     cell.innerHTML = `
       ${countBadge}
+      ${overcomeMark}
       <div class="cell-hanja">${w.hanja}</div>
       <div class="cell-answer">${answerText}</div>
       <div class="cell-grade">${w.grade || ''}</div>
