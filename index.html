@@ -367,7 +367,7 @@
     border-style: solid;
   }
   
-  .wrong-log-section.has-wrong { border-left: 4px solid #f582ae; padding-left: 16px; }
+  .wrong-log-section.has-wrong { }
   
   /* 저장소 꺼짐 경고 배너 */
   .storage-warning {
@@ -461,13 +461,13 @@
     cursor: not-allowed;
   }
   .review-start-btn {
-    background: #f582ae;
-    color: #fffffe;
-    box-shadow: 0 2px 0 #c04d7a;
+    background: #fef9c3;
+    color: #7a5e00;
+    box-shadow: 0 2px 0 #e0c840;
   }
   .review-start-btn:not(:disabled):active {
     transform: translateY(2px);
-    box-shadow: 0 0 0 #c04d7a;
+    box-shadow: 0 0 0 #e0c840;
   }
   .clear-btn-inline {
     background: #fffffe;
@@ -483,13 +483,13 @@
     border-color: #10b981;
   }
   .view-all-btn {
-    background: #8bd3dd;
-    color: #001858;
-    box-shadow: 0 2px 0 #5ca9b5;
+    background: #e0f4fd;
+    color: #0e5a78;
+    box-shadow: 0 2px 0 #8ecde8;
   }
   .view-all-btn:not(:disabled):active {
     transform: translateY(2px);
-    box-shadow: 0 0 0 #5ca9b5;
+    box-shadow: 0 0 0 #8ecde8;
   }
   
   .start-btn {
@@ -995,7 +995,7 @@
   .review-cell {
     background: #fffffe;
     border-radius: 12px;
-    padding: 10px 4px 8px;
+    padding: 5px 4px 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1005,15 +1005,15 @@
     min-height: 92px;
   }
   .review-cell .cell-hanja {
-    font-size: 32px;
+    font-size: 38px;
     font-family: 'Nanum Myeongjo', 'Batang', serif;
     color: #001858;
     font-weight: 700;
     line-height: 1;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   .review-cell .cell-answer {
-    font-size: 11px;
+    font-size: 16.5px;
     color: #10b981;
     font-weight: 700;
     text-align: center;
@@ -1021,13 +1021,13 @@
     word-break: keep-all;
   }
   .review-cell .cell-grade {
-    font-size: 9px;
+    font-size: 13.5px;
     color: #5d6b85;
     background: #fef6e4;
     padding: 1px 5px;
     border-radius: 5px;
     font-weight: 700;
-    margin-top: 3px;
+    margin-top: 2px;
   }
   .review-cell .cell-count {
     position: absolute;
@@ -1097,10 +1097,10 @@
     flex-shrink: 0;
   }
   .mode-pill-btn {
-    padding: 5px 12px;
+    padding: 5.5px 13.2px;
     border: none;
     border-radius: 7px;
-    font-size: 13px;
+    font-size: 14.3px;
     font-weight: 700;
     color: #5d6b85;
     background: transparent;
@@ -1124,11 +1124,11 @@
     stroke: none;
   }
   .mode-pill-btn.active {
-    background: #f582ae; /* 1인/2인 모두 핑크색 */
+    background: #c4a8e8; /* 연보라색 */
     color: #ffffff;
-    box-shadow: 0 1px 4px rgba(245,130,174,0.3);
+    box-shadow: 0 1px 4px rgba(168,130,220,0.35);
   }
-  .mode-pill-btn.active-2p { background: #f582ae; color: #fff; }
+  .mode-pill-btn.active-2p { background: #c4a8e8; color: #fff; }
 
   /* 2인 대전 선택 시 오답기록 비활성화 */
   .wrong-log-section.duo-disabled {
@@ -3963,7 +3963,7 @@ function renderAllWrong() {
   const overcomeCount = log.filter(x => x.overcome).length;
   const pendingCount = log.length - overcomeCount;
   subtitle.innerHTML = `그 동안 틀렸던 한자의 기록입니다. (최대 100개)<br>
-    <span style="font-size:12px; color:#5d6b85;">전체 ${log.length}개 · 극복 <span style="color:#10b981; font-weight:700">${overcomeCount}</span> · 남음 <span style="color:#f582ae; font-weight:700">${pendingCount}</span></span>`;
+    <span style="font-size:15.6px; color:#5d6b85;">전체 ${log.length}개 · 극복 <span style="color:#10b981; font-weight:700">${overcomeCount}</span> · 남음 <span style="color:#f582ae; font-weight:700">${pendingCount}</span></span>`;
   
   const grid = document.createElement('div');
   grid.className = 'review-grid';
