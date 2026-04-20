@@ -31,6 +31,12 @@
   .screen { width: 100%; max-width: 720px; display: none; }
   .screen.active { display: block; animation: fadeIn 0.3s ease-out; }
   
+  @keyframes scoreFloat {
+    0%   { opacity: 1; transform: translateX(-50%) translateY(0px) scale(1.1); }
+    60%  { opacity: 1; transform: translateX(-50%) translateY(-36px) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-56px) scale(0.9); }
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1595,6 +1601,7 @@
           <span>정답 <strong id="p1Correct">0</strong></span>
           <span>총 <strong id="p1Total">0</strong></span>
           <span>오답 <strong id="p1Wrong">0</strong></span>
+          <span>점수 <strong id="p1Score">0</strong></span>
         </div>
         <div class="duo-question-card" id="p1QuestionCard"></div>
         <div class="duo-choices" id="p1ChoicesArea"></div>
@@ -1608,6 +1615,7 @@
           <span>정답 <strong id="p2Correct">0</strong></span>
           <span>총 <strong id="p2Total">0</strong></span>
           <span>오답 <strong id="p2Wrong">0</strong></span>
+          <span>점수 <strong id="p2Score">0</strong></span>
         </div>
         <div class="duo-question-card" id="p2QuestionCard"></div>
         <div class="duo-choices" id="p2ChoicesArea"></div>
@@ -1622,7 +1630,7 @@
     <div class="duo-result-arena">
       <div class="duo-result-panel" id="p1ResultPanel">
         <div class="duo-result-player-label">1P</div>
-        <div class="duo-result-accuracy"><span id="p1AccuracyVal">0</span>%</div>
+        <div class="duo-result-accuracy"><span id="p1AccuracyVal">0</span>점</div>
         <div class="duo-result-stats-mini" id="p1ResultStats"></div>
         <div class="duo-wrong-title">틀린 한자</div>
         <div class="duo-wrong-grid" id="p1WrongGrid"></div>
@@ -1630,7 +1638,7 @@
       <div class="duo-divider-v" style="margin:16px 0"></div>
       <div class="duo-result-panel" id="p2ResultPanel">
         <div class="duo-result-player-label">2P</div>
-        <div class="duo-result-accuracy"><span id="p2AccuracyVal">0</span>%</div>
+        <div class="duo-result-accuracy"><span id="p2AccuracyVal">0</span>점</div>
         <div class="duo-result-stats-mini" id="p2ResultStats"></div>
         <div class="duo-wrong-title">틀린 한자</div>
         <div class="duo-wrong-grid" id="p2WrongGrid"></div>
@@ -3081,8 +3089,8 @@ function startGame() {
   state.startTime = Date.now();
   
   if (state.isDuo) {
-    state.p1 = { correct: 0, total: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [], streak: 0 };
-    state.p2 = { correct: 0, total: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [], streak: 0 };
+    state.p1 = { correct: 0, total: 0, score: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [], streak: 0 };
+    state.p2 = { correct: 0, total: 0, score: 0, wrongQuestions: [], usedHanja: new Set(), answered: false, currentQ: null, choices: [], streak: 0 };
     updateStatsDuo();
     showScreen('gameScreenDuo');
     nextQuestion('p1');
@@ -3434,10 +3442,13 @@ function selectAnswerDuo(playerKey, idx) {
   
   if (choice.isCorrect) {
     pState.correct++;
+    pState.score += 1;
     pState.streak++;
     buttons[idx].classList.add('correct');
     playSound('correct');
     
+    showScoreFloat(buttons[idx], '+1', '#10b981');
+
     const isBig = (pState.streak > 0 && pState.streak % 5 === 0);
     showFanfare(playerKey === 'p1' ? 'left' : 'right', buttons[idx].getBoundingClientRect(), isBig);
     if (isBig) {
@@ -3449,6 +3460,8 @@ function selectAnswerDuo(playerKey, idx) {
       if (state.elapsed < state.totalTime) nextQuestion(playerKey);
     }, 400);
   } else {
+    pState.score = Math.max(0, pState.score - 0.5);
+    pState.streak = 0;
     // 세션 오답 배열에 중복 없이 누적 (같은 한자 재등장 시 count 증가 + 맨 앞으로)
     const hanja = pState.currentQ.h;
     const existingIdx = pState.wrongQuestions.findIndex(w => w.hanja === hanja);
@@ -3478,7 +3491,9 @@ function selectAnswerDuo(playerKey, idx) {
     buttons[idx].classList.add('wrong');
     const correctIdx = pState.choices.findIndex(c => c.isCorrect);
     if (correctIdx >= 0) buttons[correctIdx].classList.add('reveal');
-    
+
+    showScoreFloat(buttons[idx], '-0.5', '#ef4444');
+
     playSound('wrong');
     showWrongFeedback(playerKey);
     updateStatsDuo();
@@ -3486,6 +3501,27 @@ function selectAnswerDuo(playerKey, idx) {
       if (state.elapsed < state.totalTime) nextQuestion(playerKey);
     }, 1500);
   }
+}
+
+function showScoreFloat(targetBtn, text, color) {
+  const rect = targetBtn.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.textContent = text;
+  el.style.cssText = `
+    position: fixed;
+    left: ${rect.left + rect.width / 2}px;
+    top: ${rect.top}px;
+    transform: translateX(-50%);
+    font-size: 22px;
+    font-weight: 900;
+    color: ${color};
+    pointer-events: none;
+    z-index: 9999;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    animation: scoreFloat 0.9s ease-out forwards;
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
 }
 
 /* ========== 팡파레 파티클 ========== */
@@ -3689,10 +3725,12 @@ function updateStatsDuo() {
   document.getElementById('p1Correct').textContent = state.p1.correct;
   document.getElementById('p1Total').textContent = state.p1.total;
   document.getElementById('p1Wrong').textContent = state.p1.total - state.p1.correct;
+  document.getElementById('p1Score').textContent = state.p1.score % 1 === 0 ? state.p1.score : state.p1.score.toFixed(1);
 
   document.getElementById('p2Correct').textContent = state.p2.correct;
   document.getElementById('p2Total').textContent = state.p2.total;
   document.getElementById('p2Wrong').textContent = state.p2.total - state.p2.correct;
+  document.getElementById('p2Score').textContent = state.p2.score % 1 === 0 ? state.p2.score : state.p2.score.toFixed(1);
 }
 
 document.getElementById('duoBackBtn').onclick = () => {
@@ -3849,19 +3887,16 @@ function endGameDuo() {
   const p1 = state.p1;
   const p2 = state.p2;
 
-  const p1Acc = p1.total === 0 ? 0 : Math.round((p1.correct / p1.total) * 100);
-  const p2Acc = p2.total === 0 ? 0 : Math.round((p2.correct / p2.total) * 100);
-
-  const p1WrongCount = p1.total - p1.correct;
-  const p2WrongCount = p2.total - p2.correct;
+  const p1Score = p1.score % 1 === 0 ? p1.score : p1.score.toFixed(1);
+  const p2Score = p2.score % 1 === 0 ? p2.score : p2.score.toFixed(1);
 
   let p1WinStr = '';
   let p2WinStr = '';
   
-  if (p1.correct > p2.correct || (p1.correct === p2.correct && p1WrongCount < p2WrongCount)) {
+  if (p1.score > p2.score) {
     p1WinStr = '🎉 승리';
     p2WinStr = '🥲 아쉽..';
-  } else if (p2.correct > p1.correct || (p1.correct === p2.correct && p2WrongCount < p1WrongCount)) {
+  } else if (p2.score > p1.score) {
     p1WinStr = '🥲 아쉽..';
     p2WinStr = '🎉 승리';
   } else {
@@ -3869,11 +3904,11 @@ function endGameDuo() {
     p2WinStr = '🤝 무승부';
   }
 
-  document.getElementById('p1AccuracyVal').textContent = p1Acc;
-  document.getElementById('p1ResultStats').innerHTML = `총 ${p1.total}문제 중 <strong style="color:#1d4ed8">${p1.correct}</strong>문제 정답<br><div style="font-size:24px; margin-top:10px; font-weight:900; color:#1d4ed8">${p1WinStr}</div>`;
+  document.getElementById('p1AccuracyVal').textContent = p1Score;
+  document.getElementById('p1ResultStats').innerHTML = `총 ${p1.total}문제 · 정답 <strong style="color:#1d4ed8">${p1.correct}</strong> · 오답 <strong style="color:#ef4444">${p1.total - p1.correct}</strong><br><div style="font-size:24px; margin-top:10px; font-weight:900; color:#1d4ed8">${p1WinStr}</div>`;
 
-  document.getElementById('p2AccuracyVal').textContent = p2Acc;
-  document.getElementById('p2ResultStats').innerHTML = `총 ${p2.total}문제 중 <strong style="color:#be185d">${p2.correct}</strong>문제 정답<br><div style="font-size:24px; margin-top:10px; font-weight:900; color:#be185d">${p2WinStr}</div>`;
+  document.getElementById('p2AccuracyVal').textContent = p2Score;
+  document.getElementById('p2ResultStats').innerHTML = `총 ${p2.total}문제 · 정답 <strong style="color:#be185d">${p2.correct}</strong> · 오답 <strong style="color:#ef4444">${p2.total - p2.correct}</strong><br><div style="font-size:24px; margin-top:10px; font-weight:900; color:#be185d">${p2WinStr}</div>`;
 
   const renderDuoWrong = (player, elId) => {
     const grid = document.getElementById(elId);
