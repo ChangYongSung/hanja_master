@@ -1424,7 +1424,7 @@
 <div class="app">
   <!-- ========== 시작 화면 ========== -->
   <div id="startScreen" class="screen active">
-    <h1 class="title">한자 급수 연습<sup class="version-tag">v1.3</sup></h1>
+    <h1 class="title">한자 급수 연습<sup class="version-tag">v1.4</sup></h1>
     <p class="subtitle">빠르고 정확하게! 제한 시간 안에 많이 풀어보세요</p>
     
     <div class="section">
@@ -1630,7 +1630,7 @@
     <div class="duo-result-arena">
       <div class="duo-result-panel" id="p1ResultPanel">
         <div class="duo-result-player-label">1P</div>
-        <div class="duo-result-accuracy"><span id="p1AccuracyVal">0</span>점</div>
+
         <div class="duo-result-stats-mini" id="p1ResultStats"></div>
         <div class="duo-wrong-title">틀린 한자</div>
         <div class="duo-wrong-grid" id="p1WrongGrid"></div>
@@ -1638,7 +1638,7 @@
       <div class="duo-divider-v" style="margin:16px 0"></div>
       <div class="duo-result-panel" id="p2ResultPanel">
         <div class="duo-result-player-label">2P</div>
-        <div class="duo-result-accuracy"><span id="p2AccuracyVal">0</span>점</div>
+
         <div class="duo-result-stats-mini" id="p2ResultStats"></div>
         <div class="duo-wrong-title">틀린 한자</div>
         <div class="duo-wrong-grid" id="p2WrongGrid"></div>
@@ -3904,11 +3904,32 @@ function endGameDuo() {
     p2WinStr = '🤝 무승부';
   }
 
-  document.getElementById('p1AccuracyVal').textContent = p1Score;
-  document.getElementById('p1ResultStats').innerHTML = `총 ${p1.total}문제 · 정답 <strong style="color:#1d4ed8">${p1.correct}</strong> · 오답 <strong style="color:#ef4444">${p1.total - p1.correct}</strong><br><div style="font-size:24px; margin-top:10px; font-weight:900; color:#1d4ed8">${p1WinStr}</div>`;
+  const p1Wrong = p1.total - p1.correct;
+  const p2Wrong = p2.total - p2.correct;
+  const p1Penalty = p1Wrong * 0.5;
+  const p2Penalty = p2Wrong * 0.5;
+  const p1PenaltyStr = p1Penalty % 1 === 0 ? p1Penalty : p1Penalty.toFixed(1);
+  const p2PenaltyStr = p2Penalty % 1 === 0 ? p2Penalty : p2Penalty.toFixed(1);
 
-  document.getElementById('p2AccuracyVal').textContent = p2Score;
-  document.getElementById('p2ResultStats').innerHTML = `총 ${p2.total}문제 · 정답 <strong style="color:#be185d">${p2.correct}</strong> · 오답 <strong style="color:#ef4444">${p2.total - p2.correct}</strong><br><div style="font-size:24px; margin-top:10px; font-weight:900; color:#be185d">${p2WinStr}</div>`;
+  document.getElementById('p1ResultStats').innerHTML = `
+    <div style="font-size:36px; font-weight:900; color:#1d4ed8; margin-bottom:12px;">${p1WinStr}</div>
+    <div style="font-size:13px; color:#6b7280;">
+      맞힌 문제 <strong style="color:#1d4ed8">${p1.correct}개</strong> × 1점
+      &nbsp;−&nbsp;
+      틀린 문제 <strong style="color:#ef4444">${p1Wrong}개</strong> × 0.5점
+      &nbsp;=&nbsp;
+      <strong style="color:#1d4ed8">${p1Score}점</strong>
+    </div>`;
+
+  document.getElementById('p2ResultStats').innerHTML = `
+    <div style="font-size:36px; font-weight:900; color:#be185d; margin-bottom:12px;">${p2WinStr}</div>
+    <div style="font-size:13px; color:#6b7280;">
+      맞힌 문제 <strong style="color:#be185d">${p2.correct}개</strong> × 1점
+      &nbsp;−&nbsp;
+      틀린 문제 <strong style="color:#ef4444">${p2Wrong}개</strong> × 0.5점
+      &nbsp;=&nbsp;
+      <strong style="color:#be185d">${p2Score}점</strong>
+    </div>`;
 
   const renderDuoWrong = (player, elId) => {
     const grid = document.getElementById(elId);
